@@ -1,0 +1,69 @@
+import csv,re
+import os,subprocess
+from glob import glob
+import pandas as pd
+ 
+def search_file(directory = None, file = None):
+    assert os.path.isdir(directory)
+    for cur_path, directories, files in os.walk(directory):
+        if file in files:
+            return os.path.join(cur_path)
+    return None
+
+
+
+ 
+#csv_files_1= [files1 for files1 in glob.glob(csv_files_1+ "**/*.csv", recursive=True)]
+#current=input("Enter The Path For Processing :")+'\\'
+#csv_files_1=input("Enter The Path Of CSV Folder :")+'\\'
+#output_wav_path=input("Enter The Path of Output Wav file Folder :")+'\\'
+
+csv_files_1=r'C:/Users/acer/Desktop/testing_csv/'         # path containig csv files
+current=r'C:/Users/acer/Desktop/testing/'             # Path conaing PART3 and PART4
+output_wav_path=r'C:/Users/acer/Desktop/floatboat/output_wav/'    #path to output wav files folder
+
+csvfiles=[]
+for r, d, f in os.walk(csv_files_1):
+    for item in f:
+        if'.csv'in item:
+            csvfiles.append(item)
+ 
+print(csvfiles)
+if csvfiles == []:
+    print( "No csv files to process.")
+ 
+with open('Final.csv','w',newline='') as csvoutput:
+    writer = csv.writer(csvoutput) 
+    writer.writerow(['','Unnamed: 0','0','1','2','3','4','5','6','discourse_particles','fillers','interjections','foreign_language','unclear_words','short_pauses','invalid','non_english_utterances','contains_fil','paralinguistic_phenomena','unknown_words','audio_path'])
+    for filename in csvfiles:
+        print("hello")
+        wav_file=search_file(directory=current,file=re.sub('.csv','',filename)+".wav")+'\\'+re.sub('.csv','',filename)+'.wav'
+        if(wav_file==None):
+            print(re.sub('.csv','',filename)+".wav"+" ..... File does not exist ....")
+            pass
+        print(wav_file)
+        csv_file_path=search_file(directory=csv_files_1,file=filename)+'\\'+filename
+        print(csv_file_path)
+        print(output_wav_path)
+        print(filename)
+        
+        with open(csv_file_path,'r') as csvinput:
+            for row in csv.reader(csvinput):
+                if row[1] == "Unnamed: 0" or row[5]=='"<S>" '  or row[5]=='"<Z>" ':
+                  pass
+                else:
+                    #print(re.sub(' ','.',row[5]))
+                    xmin=row[6]
+                    xmax=row[8]
+                    if(not(os.path.exists(wav_file))):
+                        print(wav_file+" Does Not Exist...............")
+                        pass
+                    output_wav_file=output_wav_path+re.sub('.csv','',filename)+"_"+re.sub(' ','',str(round(float(xmin),3)))+"ms_"+re.sub(' ','',str(round(float(xmax),3)))+"ms.wav"
+                    #cmd="ffmpeg -ss \""+re.sub(' ','',xmin)+" -i \"{wav_file}\""+" -t "+re.sub(' ','',xmax)+" -c copy \"{output_wav_file}\""
+                    cmd="ffmpeg -ss \""+re.sub(' ','',xmin)+"\" -i \""+str(wav_file)+"\" -ar 16000 -ac 1 -t "+re.sub(' ','',xmax)+" -c copy \""+output_wav_file+"\""
+                    #os.system(cmd)0
+                    print(cmd)
+                    subprocess.run(f"{cmd}", shell=True)
+                    writer.writerow(row+[output_wav_file])
+ 
+print("Done")
