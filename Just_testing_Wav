@@ -1,0 +1,18 @@
+from scipy.io.wavfile import read
+import matplotlib.pyplot as plt
+import pyaudio
+import librosa
+import noisereduce as nr 
+import soundfile as sf
+import speech_recognition as s_r
+ 
+#audio_data, sampling_rate = librosa.load("C:/Users/mites/OneDrive/Desktop/Answering_machinedetection/amd_dataset/amd_clips/16133450035_1.wav")
+#audio_data, sampling_rate = librosa.load("C:/Users/mites/OneDrive/Desktop/Answering_machinedetection/amd_dataset/amd_human/audio (14).wav")
+#audio_data, sampling_rate = librosa.load("C:/Users/mites/OneDrive/Desktop/Answering_machinedetection/amd_dataset/Human/16138658128.wav")
+r = s_r.Recognizer()
+ 
+with s_r.AudioFile("C:/Users/acer/Desktop/amd_dataset/amd_clips/16136295282_2.wav") as source: 
+    audio_source = r.record(source)
+ 
+text = r.recognize_google(audio_data=audio_source)
+print(text)
